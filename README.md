@@ -1,0 +1,1 @@
+[![Backend CI](https://github.com/lluzia/gatherease/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/lluzia/gatherease/actions/workflows/backend-ci.yml)
