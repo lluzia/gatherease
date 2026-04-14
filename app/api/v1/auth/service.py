@@ -47,28 +47,34 @@ logger = structlog.get_logger(__name__)
 # Password hashing (local mode only)
 # ---------------------------------------------------------------------------
 
+
 def _hash_password(password: str) -> str:
     try:
         import bcrypt
+
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     except ImportError:
         # fallback: plain sha256 — install bcrypt for real hashing
         import hashlib
+
         return hashlib.sha256(password.encode()).hexdigest()
 
 
 def _verify_password(plain: str, hashed: str) -> bool:
     try:
         import bcrypt
+
         return bcrypt.checkpw(plain.encode(), hashed.encode())
     except ImportError:
         import hashlib
+
         return hashlib.sha256(plain.encode()).hexdigest() == hashed
 
 
 # ---------------------------------------------------------------------------
 # Auth service
 # ---------------------------------------------------------------------------
+
 
 class AuthService:
     def __init__(self, db: AsyncSession) -> None:
@@ -104,7 +110,9 @@ class AuthService:
 
     async def _register_cognito(self, payload: RegisterRequest) -> dict:
         from botocore.exceptions import ClientError
+
         from app.services.cognito import get_cognito_client
+
         client = get_cognito_client()
         try:
             response = client.sign_up(
@@ -144,9 +152,7 @@ class AuthService:
         return await self._login_cognito(payload)
 
     async def _login_local(self, payload: LoginRequest) -> TokenResponse:
-        result = await self._db.execute(
-            select(User).where(User.email == payload.email)
-        )
+        result = await self._db.execute(select(User).where(User.email == payload.email))
         user = result.scalar_one_or_none()
 
         if not user or not user.hashed_password:
@@ -167,7 +173,9 @@ class AuthService:
 
     async def _login_cognito(self, payload: LoginRequest) -> TokenResponse:
         from botocore.exceptions import ClientError
+
         from app.services.cognito import get_cognito_client
+
         client = get_cognito_client()
         try:
             response = client.initiate_auth(
@@ -219,7 +227,9 @@ class AuthService:
 
     async def _refresh_cognito(self, payload: RefreshRequest) -> TokenResponse:
         from botocore.exceptions import ClientError
+
         from app.services.cognito import get_cognito_client
+
         client = get_cognito_client()
         try:
             response = client.initiate_auth(
@@ -245,6 +255,7 @@ class AuthService:
             return {"message": "Logged out successfully."}
 
         from app.services.cognito import get_cognito_client
+
         client = get_cognito_client()
         try:
             client.global_sign_out(AccessToken=access_token)
@@ -258,9 +269,12 @@ class AuthService:
         if self._settings.local_auth:
             # In local mode, just log — Mailpit will show the email
             logger.info("forgot_password_local", email=payload.email)
-            return {"message": "If that email is registered, a reset code has been sent."}
+            return {
+                "message": "If that email is registered, a reset code has been sent."
+            }
 
         from app.services.cognito import get_cognito_client
+
         client = get_cognito_client()
         try:
             client.forgot_password(
@@ -288,7 +302,9 @@ class AuthService:
             return {"message": "Password reset successful. You can now log in."}
 
         from botocore.exceptions import ClientError
+
         from app.services.cognito import get_cognito_client
+
         client = get_cognito_client()
         try:
             client.confirm_forgot_password(

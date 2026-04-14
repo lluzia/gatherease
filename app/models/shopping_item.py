@@ -17,7 +17,6 @@ from app.models.base import BaseModel
 
 if TYPE_CHECKING:
     from app.models.dish import Dish
-    from app.models.gathering import Gathering
 
 
 class ShoppingItem(BaseModel):
@@ -50,4 +49,4 @@ class ShoppingItem(BaseModel):
     )
 
     # Relationships
-    dish: Mapped["Dish | None"] = relationship("Dish", back_populates="shopping_items")
+    dish: Mapped[Dish | None] = relationship("Dish", back_populates="shopping_items")

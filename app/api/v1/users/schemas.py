@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserResponse(BaseModel):
@@ -23,6 +23,4 @@ class UserResponse(BaseModel):
 class UpdateProfileRequest(BaseModel):
     full_name: str | None = Field(default=None, max_length=255)
     avatar_url: str | None = Field(default=None)
-    preferred_language: str | None = Field(
-        default=None, pattern=r"^(en|pt|es)$"
-    )
+    preferred_language: str | None = Field(default=None, pattern=r"^(en|pt|es)$")

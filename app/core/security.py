@@ -15,7 +15,7 @@ in both modes. The dependency in dependencies.py never needs to change.
 from __future__ import annotations
 
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -24,10 +24,10 @@ from jose import ExpiredSignatureError, JWTError, jwk, jwt
 from app.config import get_settings
 from app.core.exceptions import ExpiredTokenError, InvalidTokenError
 
-
 # ---------------------------------------------------------------------------
 # Local JWT helpers (LOCAL_AUTH=true)
 # ---------------------------------------------------------------------------
+
 
 def _create_local_token(
     subject: str,
@@ -36,7 +36,7 @@ def _create_local_token(
 ) -> str:
     """Sign a JWT locally using SECRET_KEY."""
     settings = get_settings()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload = {
         "sub": subject,
         "type": token_type,
@@ -113,9 +113,7 @@ async def _decode_cognito_token(token: str) -> dict[str, Any]:
             raise InvalidTokenError("Token header missing 'kid'.")
 
         jwks = await _get_jwks()
-        key_data = next(
-            (k for k in jwks.get("keys", []) if k["kid"] == kid), None
-        )
+        key_data = next((k for k in jwks.get("keys", []) if k["kid"] == kid), None)
         if key_data is None:
             raise InvalidTokenError("No matching public key found for token.")
 
@@ -140,6 +138,7 @@ async def _decode_cognito_token(token: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Public interface — used by dependencies.py (same in both modes)
 # ---------------------------------------------------------------------------
+
 
 async def decode_token(token: str) -> dict[str, Any]:
     """Validate a JWT and return its claims.

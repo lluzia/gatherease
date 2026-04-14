@@ -66,19 +66,28 @@ class Gathering(BaseModel):
     )
 
     # Relationships
-    host: Mapped["User"] = relationship("User", back_populates="gatherings")
-    guest_rsvps: Mapped[list["GuestRSVP"]] = relationship(
-        "GuestRSVP", back_populates="gathering", lazy="raise", cascade="all, delete-orphan"
+    host: Mapped[User] = relationship("User", back_populates="gatherings")
+    guest_rsvps: Mapped[list[GuestRSVP]] = relationship(
+        "GuestRSVP",
+        back_populates="gathering",
+        lazy="raise",
+        cascade="all, delete-orphan",
     )
-    menus: Mapped[list["Menu"]] = relationship(
+    menus: Mapped[list[Menu]] = relationship(
         "Menu", back_populates="gathering", lazy="raise", cascade="all, delete-orphan"
     )
-    prep_tasks: Mapped[list["PrepTask"]] = relationship(
-        "PrepTask", back_populates="gathering", lazy="raise", cascade="all, delete-orphan"
+    prep_tasks: Mapped[list[PrepTask]] = relationship(
+        "PrepTask",
+        back_populates="gathering",
+        lazy="raise",
+        cascade="all, delete-orphan",
     )
-    budget: Mapped["Budget | None"] = relationship(
+    budget: Mapped[Budget | None] = relationship(
         "Budget", back_populates="gathering", lazy="raise", cascade="all, delete-orphan"
     )
-    reminders: Mapped[list["Reminder"]] = relationship(
-        "Reminder", back_populates="gathering", lazy="raise", cascade="all, delete-orphan"
+    reminders: Mapped[list[Reminder]] = relationship(
+        "Reminder",
+        back_populates="gathering",
+        lazy="raise",
+        cascade="all, delete-orphan",
     )

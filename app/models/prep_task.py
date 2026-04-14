@@ -34,11 +34,9 @@ class PrepTask(BaseModel):
     is_completed: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false", index=True
     )
-    sort_order: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default="0"
-    )
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
 
     # Relationships
-    gathering: Mapped["Gathering"] = relationship(
+    gathering: Mapped[Gathering] = relationship(
         "Gathering", back_populates="prep_tasks"
     )

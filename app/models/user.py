@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, String, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel
@@ -40,6 +38,6 @@ class User(BaseModel):
     hashed_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Relationships (populated by Sprint 2 models)
-    gatherings: Mapped[list["Gathering"]] = relationship(
+    gatherings: Mapped[list[Gathering]] = relationship(
         "Gathering", back_populates="host", lazy="raise"
     )

@@ -15,13 +15,13 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 
-import app.models  # noqa: F401 — ensures all models register with SQLAlchemy
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
 
+import app.models  # noqa: F401 — ensures all models register with SQLAlchemy
 from app.config import get_settings
 
 _engine: object | None = None
@@ -36,7 +36,7 @@ def _get_engine():  # type: ignore[return]
             settings.database_url,
             pool_size=settings.database_pool_size,
             max_overflow=settings.database_max_overflow,
-            pool_pre_ping=True,   # detect stale connections automatically
+            pool_pre_ping=True,  # detect stale connections automatically
             echo=settings.debug,  # log SQL in development only
         )
     return _engine

@@ -24,7 +24,12 @@ logger = structlog.get_logger(__name__)
 async def lifespan(app: FastAPI):
     settings = get_settings()
     configure_logging(debug=settings.debug)
-    logger.info("startup", app=settings.app_name, version=settings.app_version, env=settings.app_env)
+    logger.info(
+        "startup",
+        app=settings.app_name,
+        version=settings.app_version,
+        env=settings.app_env,
+    )
     yield
     logger.info("shutdown", app=settings.app_name)
 

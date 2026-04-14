@@ -31,7 +31,7 @@ class Menu(BaseModel):
     )
 
     # Relationships
-    gathering: Mapped["Gathering"] = relationship("Gathering", back_populates="menus")
-    dishes: Mapped[list["Dish"]] = relationship(
+    gathering: Mapped[Gathering] = relationship("Gathering", back_populates="menus")
+    dishes: Mapped[list[Dish]] = relationship(
         "Dish", back_populates="menu", lazy="raise", cascade="all, delete-orphan"
     )

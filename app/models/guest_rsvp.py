@@ -35,6 +35,6 @@ class GuestRSVP(BaseModel):
     )
     message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    gathering: Mapped["Gathering"] = relationship(
+    gathering: Mapped[Gathering] = relationship(
         "Gathering", back_populates="guest_rsvps"
     )

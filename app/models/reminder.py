@@ -43,6 +43,4 @@ class Reminder(BaseModel):
         DateTime(timezone=True), nullable=True
     )
 
-    gathering: Mapped["Gathering"] = relationship(
-        "Gathering", back_populates="reminders"
-    )
+    gathering: Mapped[Gathering] = relationship("Gathering", back_populates="reminders")

@@ -35,4 +35,4 @@ class BudgetEntry(BaseModel):
     paid_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    budget: Mapped["Budget"] = relationship("Budget", back_populates="entries")
+    budget: Mapped[Budget] = relationship("Budget", back_populates="entries")

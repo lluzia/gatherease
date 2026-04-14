@@ -44,16 +44,6 @@ from app.config import get_settings
 from app.dependencies import get_session
 from app.main import create_app
 from app.models.base import Base
-from app.models.budget import Budget
-from app.models.budget_entry import BudgetEntry
-from app.models.dish import Dish
-from app.models.gathering import Gathering
-from app.models.guest_rsvp import GuestRSVP
-from app.models.menu import Menu
-from app.models.prep_task import PrepTask
-from app.models.recipe import Recipe
-from app.models.reminder import Reminder
-from app.models.shopping_item import ShoppingItem
 from app.models.user import User
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -71,9 +61,7 @@ async def engine():
         # Use create_all with a custom event that skips enum type creation.
         # Enums with create_type=False are handled by pg_enum() in models,
         # but SQLite (test DB) doesn't need them anyway — they're just strings.
-        await conn.run_sync(
-            lambda c: Base.metadata.create_all(c, checkfirst=True)
-        )
+        await conn.run_sync(lambda c: Base.metadata.create_all(c, checkfirst=True))
     yield engine
     await engine.dispose()
 

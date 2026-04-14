@@ -19,6 +19,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class Base(DeclarativeBase):
     """Project-wide declarative base. Import this everywhere, not SQLAlchemy's."""
+
     pass
 
 
@@ -44,7 +45,7 @@ class UUIDMixin:
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,   # Python-side default — no DB function needed
+        default=uuid.uuid4,  # Python-side default — no DB function needed
         nullable=False,
     )
 

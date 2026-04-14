@@ -41,10 +41,10 @@ class Dish(BaseModel):
     servings: Mapped[int] = mapped_column(Integer, nullable=False, server_default="4")
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
 
-    menu: Mapped["Menu"] = relationship("Menu", back_populates="dishes")
-    recipe: Mapped["Recipe | None"] = relationship(
+    menu: Mapped[Menu] = relationship("Menu", back_populates="dishes")
+    recipe: Mapped[Recipe | None] = relationship(
         "Recipe", back_populates="dish", lazy="raise", cascade="all, delete-orphan"
     )
-    shopping_items: Mapped[list["ShoppingItem"]] = relationship(
+    shopping_items: Mapped[list[ShoppingItem]] = relationship(
         "ShoppingItem", back_populates="dish", lazy="raise"
     )

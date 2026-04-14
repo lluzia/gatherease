@@ -27,7 +27,7 @@ class Recipe(BaseModel):
         UUID(as_uuid=True),
         ForeignKey("dishes.id", ondelete="CASCADE"),
         nullable=False,
-        unique=True,   # one recipe per dish
+        unique=True,  # one recipe per dish
         index=True,
     )
     instructions: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -45,4 +45,4 @@ class Recipe(BaseModel):
     base_servings: Mapped[int | None] = mapped_column(nullable=True)
 
     # Relationships
-    dish: Mapped["Dish"] = relationship("Dish", back_populates="recipe")
+    dish: Mapped[Dish] = relationship("Dish", back_populates="recipe")

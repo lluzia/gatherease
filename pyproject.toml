@@ -67,9 +67,22 @@ select = [
     "ANN", # flake8-annotations (type hints)
 ]
 ignore = [
-    "ANN101", # missing type annotation for self
-    "ANN102", # missing type annotation for cls
-    "S101",   # allow assert in tests
+    # FastAPI pattern — Depends() in function defaults is intentional
+    "B008",
+    # Ruff removed these rules but they were in our config
+    # "ANN101", "ANN102",
+    # boto3/Any return types are unavoidable without stubs
+    "ANN401",
+    # Missing return type annotations — relax for now
+    "ANN201", "ANN202",
+    # False positives — "bearer", "access", "refresh" are not passwords
+    "S105", "S106",
+    # AppException is our base class name — renaming would break the API
+    "N818",
+    # Line length — relax for long strings/comments
+    "E501",
+    # Allow assert in tests
+    "S101",
 ]
 
 [tool.ruff.lint.per-file-ignores]

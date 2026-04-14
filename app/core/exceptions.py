@@ -28,6 +28,7 @@ logger = structlog.get_logger(__name__)
 # Base
 # ---------------------------------------------------------------------------
 
+
 class AppException(Exception):
     """Root of all GatherEase application exceptions."""
 
@@ -49,6 +50,7 @@ class AppException(Exception):
 # 400 Bad Request
 # ---------------------------------------------------------------------------
 
+
 class BadRequestError(AppException):
     status_code = status.HTTP_400_BAD_REQUEST
     code = "BAD_REQUEST"
@@ -63,6 +65,7 @@ class ValidationError(BadRequestError):
 # ---------------------------------------------------------------------------
 # 401 Unauthorised
 # ---------------------------------------------------------------------------
+
 
 class UnauthorisedError(AppException):
     status_code = status.HTTP_401_UNAUTHORIZED
@@ -84,6 +87,7 @@ class ExpiredTokenError(UnauthorisedError):
 # 403 Forbidden
 # ---------------------------------------------------------------------------
 
+
 class ForbiddenError(AppException):
     status_code = status.HTTP_403_FORBIDDEN
     code = "FORBIDDEN"
@@ -93,6 +97,7 @@ class ForbiddenError(AppException):
 # ---------------------------------------------------------------------------
 # 404 Not Found
 # ---------------------------------------------------------------------------
+
 
 class NotFoundError(AppException):
     status_code = status.HTTP_404_NOT_FOUND
@@ -114,6 +119,7 @@ class GatheringNotFoundError(NotFoundError):
 # 409 Conflict
 # ---------------------------------------------------------------------------
 
+
 class ConflictError(AppException):
     status_code = status.HTTP_409_CONFLICT
     code = "CONFLICT"
@@ -129,6 +135,7 @@ class EmailAlreadyRegisteredError(ConflictError):
 # 422 Unprocessable
 # ---------------------------------------------------------------------------
 
+
 class UnprocessableError(AppException):
     status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
     code = "UNPROCESSABLE"
@@ -138,6 +145,7 @@ class UnprocessableError(AppException):
 # ---------------------------------------------------------------------------
 # Response builder
 # ---------------------------------------------------------------------------
+
 
 def _error_response(
     status_code: int,
@@ -154,6 +162,7 @@ def _error_response(
 # ---------------------------------------------------------------------------
 # Exception handlers
 # ---------------------------------------------------------------------------
+
 
 def register_exception_handlers(app: FastAPI) -> None:
     """Attach all exception handlers to the FastAPI app."""

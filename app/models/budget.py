@@ -31,7 +31,7 @@ class Budget(BaseModel):
         UUID(as_uuid=True),
         ForeignKey("gatherings.id", ondelete="CASCADE"),
         nullable=False,
-        unique=True,   # one budget per gathering
+        unique=True,  # one budget per gathering
         index=True,
     )
     currency: Mapped[str] = mapped_column(
@@ -46,13 +46,11 @@ class Budget(BaseModel):
     )
     # Optimistic locking — incremented on every budget update to prevent
     # concurrent overwrites (race condition guard for real-time sync)
-    version: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default="1"
-    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default="1")
 
     # Relationships
-    gathering: Mapped["Gathering"] = relationship("Gathering", back_populates="budget")
-    entries: Mapped[list["BudgetEntry"]] = relationship(
+    gathering: Mapped[Gathering] = relationship("Gathering", back_populates="budget")
+    entries: Mapped[list[BudgetEntry]] = relationship(
         "BudgetEntry",
         back_populates="budget",
         lazy="raise",

@@ -37,6 +37,7 @@ _bearer = HTTPBearer(auto_error=False)
 # Database
 # ---------------------------------------------------------------------------
 
+
 async def get_session(
     session: AsyncSession = Depends(get_db),
 ) -> AsyncSession:
@@ -49,6 +50,7 @@ DbSession = Annotated[AsyncSession, Depends(get_session)]
 # ---------------------------------------------------------------------------
 # Authentication
 # ---------------------------------------------------------------------------
+
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
@@ -71,15 +73,11 @@ async def get_current_user(
         try:
             user_id = uuid.UUID(sub)
         except ValueError:
-            raise UnauthorisedError("Invalid token subject.")
-        result = await db.execute(
-            select(User).where(User.id == user_id)
-        )
+            raise UnauthorisedError("Invalid token subject.") from None
+        result = await db.execute(select(User).where(User.id == user_id))
     else:
         # Cognito mode — sub is the Cognito user pool sub
-        result = await db.execute(
-            select(User).where(User.cognito_sub == sub)
-        )
+        result = await db.execute(select(User).where(User.cognito_sub == sub))
 
     user = result.scalar_one_or_none()
 

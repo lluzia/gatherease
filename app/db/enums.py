@@ -21,41 +21,42 @@ import enum
 
 from sqlalchemy import Enum
 
-
 # ---------------------------------------------------------------------------
 # Python enum classes
 # ---------------------------------------------------------------------------
 
-class RSVPStatus(str, enum.Enum):
+
+class RSVPStatus(enum.StrEnum):
     ACCEPTED = "accepted"
     DECLINED = "declined"
-    MAYBE    = "maybe"
-    PENDING  = "pending"
+    MAYBE = "maybe"
+    PENDING = "pending"
 
 
-class DishCategory(str, enum.Enum):
-    STARTER  = "starter"
-    MAIN     = "main"
-    SIDE     = "side"
-    DESSERT  = "dessert"
-    DRINK    = "drink"
-    OTHER    = "other"
+class DishCategory(enum.StrEnum):
+    STARTER = "starter"
+    MAIN = "main"
+    SIDE = "side"
+    DESSERT = "dessert"
+    DRINK = "drink"
+    OTHER = "other"
 
 
-class BudgetEntryType(str, enum.Enum):
-    HOST        = "host"
+class BudgetEntryType(enum.StrEnum):
+    HOST = "host"
     PARTICIPANT = "participant"
 
 
-class ReminderType(str, enum.Enum):
-    PUSH  = "push"
+class ReminderType(enum.StrEnum):
+    PUSH = "push"
     EMAIL = "email"
-    BOTH  = "both"
+    BOTH = "both"
 
 
 # ---------------------------------------------------------------------------
 # Helper — always create_type=False so models never touch pg_type
 # ---------------------------------------------------------------------------
+
 
 def pg_enum(enum_cls: type[enum.Enum], name: str) -> Enum:
     """Return a SQLAlchemy Enum that reuses an existing PG type.
