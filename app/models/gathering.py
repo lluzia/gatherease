@@ -66,7 +66,7 @@ class Gathering(BaseModel):
     )
 
     # Relationships
-    host: Mapped[User] = relationship("User", back_populates="gatherings")
+    host: Mapped[User] = relationship("User", back_populates="gatherings", lazy="raise")
     guest_rsvps: Mapped[list[GuestRSVP]] = relationship(
         "GuestRSVP",
         back_populates="gathering",

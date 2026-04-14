@@ -63,5 +63,13 @@ def pg_enum(enum_cls: type[enum.Enum], name: str) -> Enum:
 
     create_type=False means: "the type already exists in the DB
     (created by a migration) — do NOT try to CREATE it again."
+
+    values_callable ensures SQLAlchemy sends the enum .value (lowercase
+    string) to PostgreSQL rather than the member name (uppercase).
     """
-    return Enum(enum_cls, name=name, create_type=False)
+    return Enum(
+        enum_cls,
+        name=name,
+        create_type=False,
+        values_callable=lambda e: [m.value for m in e],
+    )
