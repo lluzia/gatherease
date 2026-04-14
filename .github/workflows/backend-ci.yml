@@ -6,7 +6,8 @@ on:
   pull_request:
     branches: [main, develop]
 
-# No working-directory override needed — all files are at the repo root
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # opt into Node.js 24 now
 
 jobs:
   # ── Lint & format check ──────────────────────────────────────────────────────
@@ -21,6 +22,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+          cache-dependency-path: pyproject.toml
 
       - name: Install dev dependencies
         run: pip install -e ".[dev]" bcrypt
@@ -44,6 +46,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+          cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
         run: pip install -e ".[dev]" aiosqlite bcrypt
