@@ -49,20 +49,20 @@ class Gathering(BaseModel):
 
     # Host visibility toggles for the public guest page
     show_menu: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="true"
+        Boolean, nullable=False, server_default="true", default=True
     )
     show_location: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="true"
+        Boolean, nullable=False, server_default="true", default=True
     )
     show_shopping_list: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
+        Boolean, nullable=False, server_default="false", default=False
     )
     show_prep_tasks: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
+        Boolean, nullable=False, server_default="false", default=False
     )
 
     is_archived: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
+        Boolean, nullable=False, server_default="false", default=False
     )
 
     # Relationships

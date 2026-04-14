@@ -41,11 +41,11 @@ class ShoppingItem(BaseModel):
     # Who is responsible for buying this item
     assigned_to: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_purchased: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false", index=True
+        Boolean, nullable=False, server_default="false", default=False, index=True
     )
     # True when generated from a recipe ingredient; False when manually added
     is_auto_generated: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
+        Boolean, nullable=False, server_default="false", default=False
     )
 
     # Relationships

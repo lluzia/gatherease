@@ -37,7 +37,7 @@ class Reminder(BaseModel):
         DateTime(timezone=True), nullable=False, index=True
     )
     is_sent: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false", index=True
+        Boolean, nullable=False, server_default="false", default=False, index=True
     )
     sent_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True

@@ -32,7 +32,7 @@ class PrepTask(BaseModel):
         DateTime(timezone=True), nullable=True, index=True
     )
     is_completed: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false", index=True
+        Boolean, nullable=False, server_default="false", default=False, index=True
     )
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
 

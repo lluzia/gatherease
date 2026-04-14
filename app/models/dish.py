@@ -36,7 +36,7 @@ class Dish(BaseModel):
     )
     assigned_to: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_host_prepared: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="true"
+        Boolean, nullable=False, server_default="true", default=True
     )
     servings: Mapped[int] = mapped_column(Integer, nullable=False, server_default="4")
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")

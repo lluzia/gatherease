@@ -29,10 +29,10 @@ class User(BaseModel):
         String(5), nullable=False, server_default="en"
     )
     is_active: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="true"
+        Boolean, nullable=False, server_default="true", default=True
     )
     is_premium: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
+        Boolean, nullable=False, server_default="false", default=False
     )
     # Local auth only — None when using Cognito
     hashed_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
