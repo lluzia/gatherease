@@ -1,0 +1,86 @@
+# =============================================================================
+# GatherEase — .gitignore
+# =============================================================================
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Environment variables ─────────────────────────────────────────────────────
+# NEVER commit .env files — they contain secrets.
+# Use .env.example (committed) and .env.local (committed, safe defaults) as
+# templates. The real .env on each machine is always gitignored.
+.env
+.env.production
+.env.staging
+
+# These ARE committed — they contain only safe placeholder values:
+# .env.example   ← documents all required variables
+# .env.local     ← safe local defaults (LOCAL_AUTH=true, Docker credentials)
+!.env.example
+!.env.local
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+coverage/
+
+# ── Type checking / linting ───────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+# docker-compose.yml IS committed — it defines our local dev stack.
+# No secrets in docker-compose.yml (credentials come from .env).
+
+# ── AWS CDK ───────────────────────────────────────────────────────────────────
+infra/cdk.out/
+infra/.cdk.staging/
+cdk.context.json
+
+# ── Alembic ───────────────────────────────────────────────────────────────────
+# Migration files ARE committed — they are the source of truth for the schema.
+# Only ignore compiled bytecode inside versions/.
+alembic/versions/__pycache__/
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+*.bak
+*.tmp
+*.orig
+.cache/
+
+# ── Misc Author ──────────────────────────────────────────────────────────────────────
+error.txt

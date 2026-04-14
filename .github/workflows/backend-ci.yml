@@ -1,0 +1,99 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# No working-directory override needed — all files are at the repo root
+
+jobs:
+  # ── Lint & format check ──────────────────────────────────────────────────────
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dev dependencies
+        run: pip install -e ".[dev]" bcrypt
+
+      - name: Ruff lint
+        run: ruff check app/ tests/
+
+      - name: Black format check
+        run: black --check app/ tests/
+
+  # ── Tests ────────────────────────────────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]" aiosqlite bcrypt
+
+      - name: Run tests
+        env:
+          LOCAL_AUTH: "true"
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          SECRET_KEY: "ci-test-only-not-used-in-production-32chars"
+          COGNITO_REGION: "eu-west-1"
+          COGNITO_USER_POOL_ID: "eu-west-1_PLACEHOLDER"
+          COGNITO_CLIENT_ID: "placeholder"
+          S3_BUCKET_NAME: "gatherease-ci-test"
+          AWS_REGION: "eu-west-1"
+          CORS_ORIGINS: '["http://localhost:3000"]'
+        run: pytest --cov=app --cov-report=xml -q
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          flags: backend
+        if: github.event_name == 'push'
+
+  # ── Docker build check ───────────────────────────────────────────────────────
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t gatherease-backend:${{ github.sha }} .
+
+      # ── Sprint 4: uncomment to push to ECR ───────────────────────────────
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: eu-west-1
+      #
+      # - name: Login to Amazon ECR
+      #   uses: aws-actions/amazon-ecr-login@v2
+      #
+      # - name: Push to ECR
+      #   run: |
+      #     docker tag gatherease-backend:${{ github.sha }} \
+      #       ${{ secrets.ECR_REGISTRY }}/gatherease-backend:${{ github.sha }}
+      #     docker push ${{ secrets.ECR_REGISTRY }}/gatherease-backend:${{ github.sha }}
