@@ -25,7 +25,7 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Install dev dependencies
-        run: pip install -e ".[dev]" bcrypt
+        run: pip install -e ".[dev]"
 
       - name: Ruff lint
         run: ruff check app/ tests/
@@ -49,7 +49,7 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
-        run: pip install -e ".[dev]" aiosqlite bcrypt
+        run: pip install -e ".[dev]"
 
       - name: Run tests
         env:
