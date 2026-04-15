@@ -133,3 +133,19 @@ async def test_user(db_session: AsyncSession) -> User:
     db_session.add(user)
     await db_session.flush()
     return user
+
+
+@pytest.fixture(autouse=True)
+def mock_sns():
+    """Auto-used: replaces publish_event with a no-op in every test.
+
+    SNS is non-critical and non-local — we never want tests hitting AWS.
+    Tests that need to assert SNS calls can use this fixture directly:
+
+        async def test_something(mock_sns):
+            ...
+            mock_sns.assert_called_once()
+    """
+    with patch("app.services.sns.publish_event") as mock:
+        mock.return_value = None
+        yield mock

@@ -71,3 +71,47 @@ async def publish_event(event_type: str, payload: dict) -> None:
     except Exception as exc:
         # Notifications are non-critical — log but don't fail the request
         logger.error("sns_publish_error", event_type=event_type, error=str(exc))
+
+
+# ---------------------------------------------------------------------------
+# Reminder notification helpers
+# ---------------------------------------------------------------------------
+
+
+async def publish_reminder_fire(
+    *,
+    reminder_id: str,
+    gathering_id: str,
+    gathering_name: str,
+    title: str,
+    body: str | None,
+    reminder_type: str,
+    fcm_token: str | None,
+) -> None:
+    """Publish a reminder.fire event to SNS.
+
+    SNS fans out to:
+      - An FCM subscription (mobile push) when fcm_token is present
+      - Future: email digest Lambda, webhook, etc.
+
+    The message payload is deliberately flat so the SNS→Lambda consumer
+    (or SNS→FCM direct subscription) can forward it without re-parsing.
+    """
+    await publish_event(
+        "reminder.fire",
+        {
+            "reminder_id": reminder_id,
+            "gathering_id": gathering_id,
+            "gathering_name": gathering_name,
+            "title": title,
+            "body": body or "",
+            "reminder_type": reminder_type,
+            "fcm_token": fcm_token,
+        },
+    )
+    logger.info(
+        "reminder_fire_published",
+        reminder_id=reminder_id,
+        reminder_type=reminder_type,
+        has_fcm_token=bool(fcm_token),
+    )

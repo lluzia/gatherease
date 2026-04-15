@@ -47,7 +47,8 @@ class ConnectionManager:
         self._rooms: dict[str, set[WebSocket]] = {}
 
     async def connect(self, gathering_id: str, ws: WebSocket) -> None:
-        await ws.accept()
+        # accept() is called by the route handler before auth, so we
+        # only register the connection here without calling accept() again.
         if gathering_id not in self._rooms:
             self._rooms[gathering_id] = set()
         self._rooms[gathering_id].add(ws)
@@ -172,7 +173,13 @@ async def budget_websocket(
     from app.core.exceptions import ExpiredTokenError, InvalidTokenError
     from app.core.security import decode_token
 
-    # Token is always required — browsers can\'t send Authorization headers
+    # Accept the handshake unconditionally first — Starlette requires
+    # accept() before close() can send a proper close frame with a code.
+    # Closing before accept() raises WebSocketDisconnect in the test client
+    # and sends no frame at all in production.
+    await websocket.accept()
+
+    # Token is always required — browsers can't send Authorization headers
     # over WebSocket, so clients pass the JWT as ?token=<access_token>.
     if not token:
         await websocket.close(code=4001, reason="Missing token")
@@ -187,6 +194,7 @@ async def budget_websocket(
         await websocket.close(code=4001, reason=str(e))
         return
 
+    # Auth passed — register in the room (accept already called above)
     await manager.connect(gathering_id, websocket)
     try:
         # Send current state immediately on connect

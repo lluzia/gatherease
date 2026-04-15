@@ -24,3 +24,12 @@ class UpdateProfileRequest(BaseModel):
     full_name: str | None = Field(default=None, max_length=255)
     avatar_url: str | None = Field(default=None)
     preferred_language: str | None = Field(default=None, pattern=r"^(en|pt|es)$")
+
+
+class DeviceTokenRequest(BaseModel):
+    fcm_token: str | None = Field(
+        default=None,
+        max_length=512,
+        description="FCM device token from Flutter firebase_messaging package. "
+                    "Pass null to clear the token (e.g. on logout).",
+    )

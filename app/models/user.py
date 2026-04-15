@@ -37,6 +37,10 @@ class User(BaseModel):
     # Local auth only — None when using Cognito
     hashed_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
+    # Push notifications — Flutter client registers after login
+    # via PATCH /api/v1/users/me/device-token
+    fcm_token: Mapped[str | None] = mapped_column(String(512), nullable=True)
+
     # Relationships (populated by Sprint 2 models)
     gatherings: Mapped[list[Gathering]] = relationship(
         "Gathering", back_populates="host", lazy="raise"

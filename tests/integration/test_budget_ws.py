@@ -80,41 +80,49 @@ def _ws_url(gathering_id: str, token: str | None = None) -> str:
 @pytest.mark.asyncio
 async def test_ws_rejects_missing_token(app, client: AsyncClient) -> None:
     """WS must close with 4001 when no ?token is provided."""
+    import pytest
+    from starlette.websockets import WebSocketDisconnect
+
     token = await _register_and_login(client, "wsreject1@test.com")
     gid = await _create_gathering(client, token)
 
     sync_client = TestClient(app)
-    with sync_client.websocket_connect(_ws_url(gid)) as ws:
-        # Server closes immediately — receive the close frame
-        data = ws.receive()
-        assert data["type"] == "websocket.close"
-        assert data["code"] == 4001
+    with pytest.raises(WebSocketDisconnect) as exc_info:
+        with sync_client.websocket_connect(_ws_url(gid)) as ws:
+            ws.receive_text()  # blocks until server closes
+    assert exc_info.value.code == 4001
 
 
 @pytest.mark.asyncio
 async def test_ws_rejects_invalid_token(app, client: AsyncClient) -> None:
     """WS must close with 4001 when the token is malformed."""
+    import pytest
+    from starlette.websockets import WebSocketDisconnect
+
     token = await _register_and_login(client, "wsreject2@test.com")
     gid = await _create_gathering(client, token)
 
     sync_client = TestClient(app)
-    with sync_client.websocket_connect(_ws_url(gid, _invalid_token())) as ws:
-        data = ws.receive()
-        assert data["type"] == "websocket.close"
-        assert data["code"] == 4001
+    with pytest.raises(WebSocketDisconnect) as exc_info:
+        with sync_client.websocket_connect(_ws_url(gid, _invalid_token())) as ws:
+            ws.receive_text()
+    assert exc_info.value.code == 4001
 
 
 @pytest.mark.asyncio
 async def test_ws_rejects_expired_token(app, client: AsyncClient) -> None:
     """WS must close with 4002 when the token is expired."""
+    import pytest
+    from starlette.websockets import WebSocketDisconnect
+
     token = await _register_and_login(client, "wsreject3@test.com")
     gid = await _create_gathering(client, token)
 
     sync_client = TestClient(app)
-    with sync_client.websocket_connect(_ws_url(gid, _expired_token())) as ws:
-        data = ws.receive()
-        assert data["type"] == "websocket.close"
-        assert data["code"] == 4002
+    with pytest.raises(WebSocketDisconnect) as exc_info:
+        with sync_client.websocket_connect(_ws_url(gid, _expired_token())) as ws:
+            ws.receive_text()
+    assert exc_info.value.code == 4002
 
 
 @pytest.mark.asyncio
@@ -191,7 +199,7 @@ async def test_ws_receives_broadcast_on_entry_added(
         # Trigger a REST mutation — this should broadcast to the WS
         resp = await client.post(
             f"/api/v1/gatherings/{gid}/budget/entries",
-            json={"label": "Wine", "amount": "35.50", "category": "drinks"},
+            json={"description": "Wine", "amount": "35.50"},
             headers={"Authorization": f"Bearer {token}"},
         )
         assert resp.status_code == 201
@@ -201,7 +209,7 @@ async def test_ws_receives_broadcast_on_entry_added(
         data = json.loads(raw)
         assert data["total_spent"] == "35.50"
         assert len(data["entries"]) == 1
-        assert data["entries"][0]["label"] == "Wine"
+        assert data["entries"][0]["description"] == "Wine"
 
 
 @pytest.mark.asyncio
@@ -219,7 +227,7 @@ async def test_ws_broadcast_on_entry_deleted(
     )
     add_resp = await client.post(
         f"/api/v1/gatherings/{gid}/budget/entries",
-        json={"label": "Cheese", "amount": "22.00", "category": "food"},
+        json={"description": "Cheese", "amount": "22.00"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert add_resp.status_code == 201
@@ -268,7 +276,7 @@ async def test_ws_multiple_clients_all_receive_broadcast(
         # One mutation
         await client.post(
             f"/api/v1/gatherings/{gid}/budget/entries",
-            json={"label": "Flowers", "amount": "45.00", "category": "decor"},
+            json={"description": "Flowers", "amount": "45.00"},
             headers={"Authorization": f"Bearer {token}"},
         )
 

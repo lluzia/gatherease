@@ -1,15 +1,16 @@
 """
 Users router — /api/v1/users
 
-GET  /users/me    – return authenticated user profile
-PATCH /users/me   – update profile fields
+GET   /users/me               – return authenticated user profile
+PATCH /users/me               – update profile fields
+PATCH /users/me/device-token  – register/clear FCM push token
 """
 
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from app.api.v1.users.schemas import UpdateProfileRequest, UserResponse
+from app.api.v1.users.schemas import DeviceTokenRequest, UpdateProfileRequest, UserResponse
 from app.api.v1.users.service import UserService
 from app.dependencies import CurrentUser, DbSession
 
@@ -44,4 +45,22 @@ async def update_me(
     service: UserService = Depends(_get_user_service),
 ) -> UserResponse:
     user = await service.update_me(current_user, payload)
+    return UserResponse.model_validate(user)
+
+@router.patch(
+    "/me/device-token",
+    response_model=UserResponse,
+    summary="Register or clear FCM device token",
+    description=(
+        "Called by Flutter after firebase_messaging.getToken() resolves. "
+        "Pass fcm_token: null to clear the token on logout, so stale tokens "
+        "are not targeted by reminder dispatches."
+    ),
+)
+async def register_device_token(
+    payload: DeviceTokenRequest,
+    current_user: CurrentUser,
+    service: UserService = Depends(_get_user_service),
+) -> UserResponse:
+    user = await service.register_device_token(current_user, payload.fcm_token)
     return UserResponse.model_validate(user)
