@@ -11,6 +11,7 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.budget.router import ws_router as budget_ws_router
 from app.api.v1.router import v1_router
 from app.config import get_settings
 from app.core.exceptions import register_exception_handlers
@@ -49,7 +50,11 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(o) for o in settings.cors_origins],
+        allow_origins=(
+            ["*"]
+            if not settings.is_production
+            else [str(o) for o in settings.cors_origins]
+        ),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -59,6 +64,9 @@ def create_app() -> FastAPI:
 
     register_exception_handlers(app)
     app.include_router(v1_router)
+    # WebSocket router mounted at root — path stays /ws/gatherings/{id}/budget
+    # (no /api/v1 prefix, matching client expectations and the handoff docs)
+    app.include_router(budget_ws_router)
 
     @app.get("/health", tags=["Health"], include_in_schema=False)
     async def health() -> dict[str, Any]:
