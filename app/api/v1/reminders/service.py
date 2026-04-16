@@ -10,7 +10,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.reminders.schemas import CreateReminderRequest, UpdateReminderRequest
-from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
+from app.core.exceptions import (
+    BadRequestError,
+    ForbiddenError,
+    GatheringNotFoundError,
+    NotFoundError,
+)
 from app.models.gathering import Gathering
 from app.models.reminder import Reminder
 from app.models.user import User
@@ -35,7 +40,8 @@ class ReminderService:
             raise GatheringNotFoundError()
         return gathering
 
-    def _assert_host(self, gathering: Gathering, user: User) -> None:
+    @staticmethod
+    def _assert_host(gathering: Gathering, user: User) -> None:
         if gathering.host_id != user.id:
             raise ForbiddenError("Only the host can manage reminders.")
 
@@ -102,7 +108,9 @@ class ReminderService:
         reminder = await self._get_reminder_or_404(reminder_id)
 
         if reminder.is_sent:
-            raise BadRequestError("Cannot modify a reminder that has already been sent.")
+            raise BadRequestError(
+                "Cannot modify a reminder that has already been sent."
+            )
 
         for field, value in payload.model_dump(exclude_none=True).items():
             setattr(reminder, field, value)
@@ -204,9 +212,11 @@ class ReminderService:
             gathering_name=gathering_name,
             title=reminder.title,
             body=reminder.body,
-            reminder_type=str(reminder.reminder_type.value)
-            if hasattr(reminder.reminder_type, "value")
-            else str(reminder.reminder_type),
+            reminder_type=(
+                str(reminder.reminder_type.value)
+                if hasattr(reminder.reminder_type, "value")
+                else str(reminder.reminder_type)
+            ),
             fcm_token=host.fcm_token,
         )
 

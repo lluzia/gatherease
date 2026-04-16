@@ -1,0 +1,169 @@
+ruff check app/ tests/
+I001 [*] Import block is un-sorted or un-formatted
+  --> app/api/v1/gatherings/service.py:3:1
+   |
+ 1 |   """Gathering service — all business logic for gatherings, invites and RSVPs."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import secrets
+ 6 | | import uuid
+ 7 | |
+ 8 | | import structlog
+ 9 | | from sqlalchemy import select
+10 | | from sqlalchemy.ext.asyncio import AsyncSession
+11 | |
+12 | | from app.api.v1.gatherings.schemas import (
+13 | |     CreateGatheringRequest,
+14 | |     GuestListResponse,
+15 | |     GuestPageResponse,
+16 | |     RSVPRequest,
+17 | |     RSVPResponse,
+18 | |     UpdateGatheringRequest,)
+19 | | from app.core.exceptions import ForbiddenError, GatheringLimitError, GatheringNotFoundError, NotFoundError
+20 | | from app.db.enums import RSVPStatus
+21 | | from app.models.gathering import Gathering
+22 | | from app.models.guest_rsvp import GuestRSVP
+23 | | from app.models.user import User
+   | |________________________________^
+24 |
+25 |   logger = structlog.get_logger(__name__)
+   |
+help: Organize imports
+
+UP017 [*] Use `datetime.UTC` alias
+  --> app/api/v1/reminders/schemas.py:31:34
+   |
+29 |             from datetime import timezone
+30 |
+31 |             v = v.replace(tzinfo=timezone.utc)
+   |                                  ^^^^^^^^^^^^
+32 |         if v <= now:
+33 |             raise ValueError("scheduled_at must be in the future.")
+   |
+help: Convert to `datetime.UTC` alias
+
+UP017 [*] Use `datetime.UTC` alias
+  --> app/api/v1/reminders/schemas.py:54:34
+   |
+52 |             from datetime import timezone
+53 |
+54 |             v = v.replace(tzinfo=timezone.utc)
+   |                                  ^^^^^^^^^^^^
+55 |         if v <= now:
+56 |             raise ValueError("scheduled_at must be in the future.")
+   |
+help: Convert to `datetime.UTC` alias
+
+F821 Undefined name `GatheringNotFoundError`
+  --> app/api/v1/reminders/service.py:35:19
+   |
+33 |         gathering = result.scalar_one_or_none()
+34 |         if gathering is None:
+35 |             raise GatheringNotFoundError()
+   |                   ^^^^^^^^^^^^^^^^^^^^^^
+36 |         return gathering
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> app/api/v1/router.py:8:1
+   |
+ 6 |   """
+ 7 |
+ 8 | / from fastapi import APIRouter
+ 9 | |
+10 | | from app.api.v1.auth.router import router as auth_router
+11 | | from app.api.v1.budget.router import router as budget_router
+12 | | from app.api.v1.gatherings.router import public_router as invite_router
+13 | | from app.api.v1.gatherings.router import router as gatherings_router
+14 | | from app.api.v1.menus.router import router as menus_router
+15 | | from app.api.v1.prep.router import router as prep_router
+16 | | from app.api.v1.shopping.router import router as shopping_router
+17 | | from app.api.v1.reminders.router import router as reminders_router
+18 | | from app.api.v1.users.router import router as users_router
+   | |__________________________________________________________^
+19 |
+20 |   v1_router = APIRouter(prefix="/api/v1")
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> app/api/v1/users/router.py:9:1
+   |
+ 7 |   """
+ 8 |
+ 9 | / from __future__ import annotations
+10 | |
+11 | | from fastapi import APIRouter, Depends
+12 | |
+13 | | from app.api.v1.users.schemas import DeviceTokenRequest, UpdateProfileRequest, UserResponse
+14 | | from app.api.v1.users.service import UserService
+15 | | from app.dependencies import CurrentUser, DbSession
+   | |___________________________________________________^
+16 |
+17 |   router = APIRouter(prefix="/users", tags=["Users"])
+   |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> app/core/exceptions.py:17:1
+   |
+15 |   """
+16 |
+17 | / from __future__ import annotations
+18 | |
+19 | | import structlog
+20 | | from fastapi import FastAPI, Request, status
+21 | |
+22 | | from app.core.i18n import translate
+23 | | from fastapi.exceptions import RequestValidationError
+24 | | from fastapi.responses import JSONResponse
+   | |__________________________________________^
+25 |
+26 |   logger = structlog.get_logger(__name__)
+   |
+help: Organize imports
+
+S107 Possible hardcoded password assigned to function default: "secret"
+  --> tests/integration/test_budget_ws.py:53:34
+   |
+53 | def _expired_token(secret: str = "test-secret-key-not-for-production") -> str:
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+54 |     """Build a structurally valid JWT that is already expired."""
+55 |     now = datetime.now(UTC)
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_i18n.py:12:1
+   |
+10 |   """
+11 |
+12 | / from __future__ import annotations
+13 | |
+14 | | import pytest
+15 | | from httpx import AsyncClient
+16 | |
+17 | | from app.core.i18n import (
+18 | |     DEFAULT_LOCALE,
+19 | |     SUPPORTED_LOCALES,
+20 | |     resolve_locale,
+21 | |     translate,
+22 | | )
+   | |_^
+   |
+help: Organize imports
+
+F841 Local variable `original_access` is assigned to but never used
+   --> tests/unit/test_qa_auth.py:152:5
+    |
+150 |     login = await _login(client, "qa_refresh1@test.com")
+151 |     refresh_token = login.json()["refresh_token"]
+152 |     original_access = login.json()["access_token"]
+    |     ^^^^^^^^^^^^^^^
+153 |
+154 |     resp = await client.post(
+    |
+help: Remove assignment to unused variable `original_access`
+
+Found 10 errors.
+[*] 7 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

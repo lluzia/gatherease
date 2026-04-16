@@ -116,7 +116,5 @@ async def send_reminder(
     current_user: CurrentUser,
     service: ReminderService = Depends(_svc),
 ) -> ReminderResponse:
-    reminder = await service.dispatch_reminder(
-        gathering_id, reminder_id, current_user
-    )
+    reminder = await service.dispatch_reminder(gathering_id, reminder_id, current_user)
     return ReminderResponse(**reminder_to_dict(reminder))

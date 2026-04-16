@@ -111,7 +111,11 @@ async def test_register_stores_full_name_and_language(client: AsyncClient) -> No
 async def test_register_invalid_language_code(client: AsyncClient) -> None:
     resp = await client.post(
         "/api/v1/auth/register",
-        json={"email": "qa_lang@test.com", "password": PASSWORD, "preferred_language": "fr"},
+        json={
+            "email": "qa_lang@test.com",
+            "password": PASSWORD,
+            "preferred_language": "fr",
+        },
     )
     assert resp.status_code == 422
 
@@ -149,7 +153,7 @@ async def test_refresh_issues_new_access_token(client: AsyncClient) -> None:
     await _register(client, "qa_refresh1@test.com")
     login = await _login(client, "qa_refresh1@test.com")
     refresh_token = login.json()["refresh_token"]
-    original_access = login.json()["access_token"]
+    # original_access = login.json()["access_token"]
 
     resp = await client.post(
         "/api/v1/auth/refresh", json={"refresh_token": refresh_token}

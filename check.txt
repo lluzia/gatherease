@@ -1,0 +1,37 @@
+ruff check app/ tests/
+All checks passed!
+ruff check . --fix && ruff format .
+ANN003 Missing type annotation for `**kwargs`
+  --> infra/stacks/cognito_stack.py:29:9
+   |
+27 |         construct_id: str,
+28 |         app_env: str,
+29 |         **kwargs,
+   |         ^^^^^^^^
+30 |     ) -> None:
+31 |         super().__init__(scope, construct_id, **kwargs)
+   |
+
+ANN003 Missing type annotation for `**kwargs`
+  --> infra/stacks/rds_stack.py:35:9
+   |
+33 |         construct_id: str,
+34 |         app_env: str,
+35 |         **kwargs,
+   |         ^^^^^^^^
+36 |     ) -> None:
+37 |         super().__init__(scope, construct_id, **kwargs)
+   |
+
+ANN003 Missing type annotation for `**kwargs`
+  --> infra/stacks/s3_stack.py:33:9
+   |
+31 |         construct_id: str,
+32 |         app_env: str,
+33 |         **kwargs,
+   |         ^^^^^^^^
+34 |     ) -> None:
+35 |         super().__init__(scope, construct_id, **kwargs)
+   |
+
+Found 3 errors.

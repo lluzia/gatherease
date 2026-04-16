@@ -28,8 +28,12 @@ GATHERING = {"name": "Party", "event_date": "2026-12-01T19:00:00Z"}
 
 
 async def _register_login(client: AsyncClient, email: str) -> str:
-    await client.post("/api/v1/auth/register", json={"email": email, "password": PASSWORD})
-    resp = await client.post("/api/v1/auth/login", json={"email": email, "password": PASSWORD})
+    await client.post(
+        "/api/v1/auth/register", json={"email": email, "password": PASSWORD}
+    )
+    resp = await client.post(
+        "/api/v1/auth/login", json={"email": email, "password": PASSWORD}
+    )
     assert resp.status_code == 200, resp.text
     return resp.json()["access_token"]
 
@@ -66,8 +70,8 @@ async def test_free_user_can_create_three(client: AsyncClient) -> None:
     token = await _register_login(client, "free1@test.com")
 
     for i in range(3):
-        resp = await _create(client, token, f"Party {i+1}")
-        assert resp.status_code == 201, f"gathering {i+1} failed: {resp.text}"
+        resp = await _create(client, token, f"Party {i + 1}")
+        assert resp.status_code == 201, f"gathering {i + 1} failed: {resp.text}"
 
 
 @pytest.mark.asyncio
@@ -75,7 +79,7 @@ async def test_free_user_blocked_on_fourth(client: AsyncClient) -> None:
     token = await _register_login(client, "free2@test.com")
 
     for i in range(3):
-        await _create(client, token, f"Party {i+1}")
+        await _create(client, token, f"Party {i + 1}")
 
     resp = await _create(client, token, "Party 4")
     assert resp.status_code == 403
@@ -88,7 +92,7 @@ async def test_free_user_blocked_fifth_after_extra_attempt(client: AsyncClient) 
     token = await _register_login(client, "free3@test.com")
 
     for i in range(3):
-        await _create(client, token, f"Party {i+1}")
+        await _create(client, token, f"Party {i + 1}")
 
     for _ in range(3):
         resp = await _create(client, token, "Extra")
@@ -106,7 +110,7 @@ async def test_delete_frees_slot(client: AsyncClient) -> None:
 
     ids = []
     for i in range(3):
-        r = await _create(client, token, f"Party {i+1}")
+        r = await _create(client, token, f"Party {i + 1}")
         ids.append(r.json()["id"])
 
     # Blocked at 4
@@ -130,7 +134,7 @@ async def test_archive_frees_slot(client: AsyncClient) -> None:
 
     ids = []
     for i in range(3):
-        r = await _create(client, token, f"Party {i+1}")
+        r = await _create(client, token, f"Party {i + 1}")
         ids.append(r.json()["id"])
 
     # Blocked at 4
@@ -162,8 +166,8 @@ async def test_premium_user_can_exceed_free_limit(
 
     # Premium users can go well beyond 3
     for i in range(5):
-        resp = await _create(client, token, f"VIP Party {i+1}")
-        assert resp.status_code == 201, f"gathering {i+1} failed: {resp.text}"
+        resp = await _create(client, token, f"VIP Party {i + 1}")
+        assert resp.status_code == 201, f"gathering {i + 1} failed: {resp.text}"
 
 
 @pytest.mark.asyncio
@@ -176,12 +180,12 @@ async def test_premium_to_free_downgrade_blocks_new(
 
     # Create 3 as free, upgrade, create 2 more
     for i in range(3):
-        await _create(client, token, f"Party {i+1}")
+        await _create(client, token, f"Party {i + 1}")
 
     await _set_premium(db_session, email, True)
 
     for i in range(2):
-        resp = await _create(client, token, f"Premium Party {i+1}")
+        resp = await _create(client, token, f"Premium Party {i + 1}")
         assert resp.status_code == 201
 
     # Downgrade back to free — 5 active gatherings, new ones blocked
@@ -202,7 +206,7 @@ async def test_limit_error_translated_pt(client: AsyncClient) -> None:
     token = await _register_login(client, "free6@test.com")
 
     for i in range(3):
-        await _create(client, token, f"Party {i+1}")
+        await _create(client, token, f"Party {i + 1}")
 
     resp = await client.post(
         "/api/v1/gatherings",
@@ -219,7 +223,7 @@ async def test_limit_error_translated_es(client: AsyncClient) -> None:
     token = await _register_login(client, "free7@test.com")
 
     for i in range(3):
-        await _create(client, token, f"Party {i+1}")
+        await _create(client, token, f"Party {i + 1}")
 
     resp = await client.post(
         "/api/v1/gatherings",
@@ -238,4 +242,5 @@ async def test_limit_error_translated_es(client: AsyncClient) -> None:
 
 def test_free_limit_constant() -> None:
     from app.api.v1.gatherings.service import GatheringService
+
     assert GatheringService.FREE_GATHERING_LIMIT == 3

@@ -18,10 +18,10 @@ from __future__ import annotations
 
 import structlog
 from fastapi import FastAPI, Request, status
-
-from app.core.i18n import translate
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+
+from app.core.i18n import translate
 
 logger = structlog.get_logger(__name__)
 

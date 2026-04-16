@@ -10,7 +10,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from app.api.v1.users.schemas import DeviceTokenRequest, UpdateProfileRequest, UserResponse
+from app.api.v1.users.schemas import (
+    DeviceTokenRequest,
+    UpdateProfileRequest,
+    UserResponse,
+)
 from app.api.v1.users.service import UserService
 from app.dependencies import CurrentUser, DbSession
 
@@ -46,6 +50,7 @@ async def update_me(
 ) -> UserResponse:
     user = await service.update_me(current_user, payload)
     return UserResponse.model_validate(user)
+
 
 @router.patch(
     "/me/device-token",

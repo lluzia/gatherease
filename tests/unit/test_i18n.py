@@ -21,7 +21,6 @@ from app.core.i18n import (
     translate,
 )
 
-
 # ---------------------------------------------------------------------------
 # resolve_locale unit tests (pure function — no HTTP needed)
 # ---------------------------------------------------------------------------
@@ -166,8 +165,12 @@ PASSWORD = "SecurePass1!"
 
 
 async def _register_login(client: AsyncClient, email: str) -> str:
-    await client.post("/api/v1/auth/register", json={"email": email, "password": PASSWORD})
-    resp = await client.post("/api/v1/auth/login", json={"email": email, "password": PASSWORD})
+    await client.post(
+        "/api/v1/auth/register", json={"email": email, "password": PASSWORD}
+    )
+    resp = await client.post(
+        "/api/v1/auth/login", json={"email": email, "password": PASSWORD}
+    )
     return resp.json()["access_token"]
 
 
@@ -299,7 +302,9 @@ async def test_forbidden_error_translated_pt(client: AsyncClient) -> None:
         },
     )
     assert resp.status_code == 403
-    assert resp.json()["error"]["message"] == "Não tem permissão para realizar esta ação."
+    assert (
+        resp.json()["error"]["message"] == "Não tem permissão para realizar esta ação."
+    )
 
 
 @pytest.mark.asyncio

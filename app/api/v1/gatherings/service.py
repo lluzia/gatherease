@@ -17,7 +17,12 @@ from app.api.v1.gatherings.schemas import (
     RSVPResponse,
     UpdateGatheringRequest,
 )
-from app.core.exceptions import ForbiddenError, GatheringLimitError, GatheringNotFoundError, NotFoundError
+from app.core.exceptions import (
+    ForbiddenError,
+    GatheringLimitError,
+    GatheringNotFoundError,
+    NotFoundError,
+)
 from app.db.enums import RSVPStatus
 from app.models.gathering import Gathering
 from app.models.guest_rsvp import GuestRSVP
@@ -41,7 +46,8 @@ class GatheringService:
             raise GatheringNotFoundError()
         return gathering
 
-    def _assert_host(self, gathering: Gathering, user: User) -> None:
+    @staticmethod
+    def _assert_host(gathering: Gathering, user: User) -> None:
         if gathering.host_id != user.id:
             raise ForbiddenError("Only the host can perform this action.")
 
@@ -63,7 +69,9 @@ class GatheringService:
         from sqlalchemy import func
 
         result = await self._db.execute(
-            select(func.count()).select_from(Gathering).where(
+            select(func.count())
+            .select_from(Gathering)
+            .where(
                 Gathering.host_id == host.id,
                 Gathering.is_archived != True,  # noqa: E712
             )

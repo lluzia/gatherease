@@ -26,9 +26,7 @@ class CreateReminderRequest(BaseModel):
         now = datetime.now(UTC)
         # Make v timezone-aware if it arrives naive (treat as UTC)
         if v.tzinfo is None:
-            from datetime import timezone
-
-            v = v.replace(tzinfo=timezone.utc)
+            v = v.replace(tzinfo=UTC)
         if v <= now:
             raise ValueError("scheduled_at must be in the future.")
         return v
@@ -49,9 +47,7 @@ class UpdateReminderRequest(BaseModel):
 
         now = datetime.now(UTC)
         if v.tzinfo is None:
-            from datetime import timezone
-
-            v = v.replace(tzinfo=timezone.utc)
+            v = v.replace(tzinfo=UTC)
         if v <= now:
             raise ValueError("scheduled_at must be in the future.")
         return v
@@ -73,7 +69,7 @@ class ReminderResponse(BaseModel):
 class ReminderListResponse(BaseModel):
     reminders: list[ReminderResponse]
     total: int
-    pending: int   # not yet sent
+    pending: int  # not yet sent
     sent: int
 
 

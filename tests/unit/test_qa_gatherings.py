@@ -25,8 +25,12 @@ PASSWORD = "SecurePass1!"
 
 
 async def _register_login(client: AsyncClient, email: str) -> str:
-    await client.post("/api/v1/auth/register", json={"email": email, "password": PASSWORD})
-    resp = await client.post("/api/v1/auth/login", json={"email": email, "password": PASSWORD})
+    await client.post(
+        "/api/v1/auth/register", json={"email": email, "password": PASSWORD}
+    )
+    resp = await client.post(
+        "/api/v1/auth/login", json={"email": email, "password": PASSWORD}
+    )
     return resp.json()["access_token"]
 
 
@@ -55,9 +59,7 @@ async def _get_invite_token(client: AsyncClient, token: str, gid: str) -> str:
 @pytest.mark.asyncio
 async def test_get_nonexistent_gathering_404(client: AsyncClient) -> None:
     token = await _register_login(client, "qa_g1@test.com")
-    resp = await client.get(
-        f"/api/v1/gatherings/{uuid.uuid4()}", headers=_auth(token)
-    )
+    resp = await client.get(f"/api/v1/gatherings/{uuid.uuid4()}", headers=_auth(token))
     assert resp.status_code == 404
     assert resp.json()["error"]["code"] == "GATHERING_NOT_FOUND"
 
@@ -251,7 +253,12 @@ async def test_guest_list_counts_by_status(client: AsyncClient) -> None:
     g = await _create_gathering(client, token)
     invite_token = await _get_invite_token(client, token, g["id"])
 
-    for name, status in [("A", "accepted"), ("B", "accepted"), ("C", "declined"), ("D", "maybe")]:
+    for name, status in [
+        ("A", "accepted"),
+        ("B", "accepted"),
+        ("C", "declined"),
+        ("D", "maybe"),
+    ]:
         await client.post(
             f"/api/v1/i/{invite_token}/rsvp",
             json={"guest_name": name, "status": status},

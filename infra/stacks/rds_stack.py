@@ -20,10 +20,12 @@ Design decisions:
 
 from __future__ import annotations
 
+from typing import Unpack
+
 import aws_cdk as cdk
+from aws_cdk import StackProps
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_rds as rds
-from aws_cdk import aws_secretsmanager as sm
 from constructs import Construct
 
 
@@ -33,7 +35,7 @@ class GatherEaseRDSStack(cdk.Stack):
         scope: Construct,
         construct_id: str,
         app_env: str,
-        **kwargs,
+        **kwargs: Unpack[StackProps],
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -47,7 +49,7 @@ class GatherEaseRDSStack(cdk.Stack):
             "GatherEaseVPC",
             vpc_name=f"gatherease-{app_env}",
             max_azs=2,
-            nat_gateways=0,              # $0/month vs $64/month with NAT
+            nat_gateways=0,  # $0/month vs $64/month with NAT
             subnet_configuration=[
                 ec2.SubnetConfiguration(
                     name="Public",
@@ -135,7 +137,6 @@ class GatherEaseRDSStack(cdk.Stack):
             engine=rds.DatabaseInstanceEngine.postgres(
                 version=rds.PostgresEngineVersion.VER_16
             ),
-
             # Graviton-based instances: better price/performance ratio
             # db.t4g.micro  = 2 vCPU, 1 GB RAM  — fine for MVP dev
             # db.t4g.small  = 2 vCPU, 2 GB RAM  — recommended for production
@@ -143,43 +144,34 @@ class GatherEaseRDSStack(cdk.Stack):
                 ec2.InstanceClass.BURSTABLE4_GRAVITON,
                 ec2.InstanceSize.SMALL if is_prod else ec2.InstanceSize.MICRO,
             ),
-
             vpc=self.vpc,
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.PRIVATE_ISOLATED
             ),
             security_groups=[self.rds_sg],
-
             # Credentials from Secrets Manager
             credentials=rds.Credentials.from_secret(self.db_secret),
             database_name="gatherease",
-
             # Storage
-            allocated_storage=20,                # GB — min for gp3
+            allocated_storage=20,  # GB — min for gp3
             storage_type=rds.StorageType.GP3,
-            storage_encrypted=True,              # always encrypt at rest
-
+            storage_encrypted=True,  # always encrypt at rest
             parameter_group=param_group,
-
             # Backups
             backup_retention=cdk.Duration.days(14 if is_prod else 7),
-            preferred_backup_window="02:00-03:00",     # UTC — low traffic
+            preferred_backup_window="02:00-03:00",  # UTC — low traffic
             preferred_maintenance_window="sun:03:00-sun:04:00",
-
             # High availability
             multi_az=is_prod,
-
             # Monitoring
             enable_performance_insights=is_prod,
             monitoring_interval=cdk.Duration.seconds(60) if is_prod else None,
-
             # Lifecycle
             deletion_protection=is_prod,
             removal_policy=(
                 cdk.RemovalPolicy.RETAIN if is_prod else cdk.RemovalPolicy.DESTROY
             ),
             delete_automated_backups=not is_prod,
-
             # Publicly accessible: False — connections come through VPC only
             publicly_accessible=False,
         )

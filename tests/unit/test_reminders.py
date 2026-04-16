@@ -26,8 +26,12 @@ PASSWORD = "SecurePass1!"
 
 
 async def _register_login(client: AsyncClient, email: str) -> str:
-    await client.post("/api/v1/auth/register", json={"email": email, "password": PASSWORD})
-    resp = await client.post("/api/v1/auth/login", json={"email": email, "password": PASSWORD})
+    await client.post(
+        "/api/v1/auth/register", json={"email": email, "password": PASSWORD}
+    )
+    resp = await client.post(
+        "/api/v1/auth/login", json={"email": email, "password": PASSWORD}
+    )
     assert resp.status_code == 200, resp.text
     return resp.json()["access_token"]
 
@@ -298,6 +302,7 @@ async def test_delete_reminder_not_found(client: AsyncClient) -> None:
     gid = await _create_gathering(client, token)
 
     import uuid
+
     resp = await client.delete(
         f"/api/v1/gatherings/{gid}/reminders/{uuid.uuid4()}",
         headers=_auth(token),
@@ -477,9 +482,7 @@ async def test_reminders_sorted_by_scheduled_at(client: AsyncClient) -> None:
     await _create_reminder(client, token, gid, title="Later", minutes=120)
     await _create_reminder(client, token, gid, title="Sooner", minutes=30)
 
-    resp = await client.get(
-        f"/api/v1/gatherings/{gid}/reminders", headers=_auth(token)
-    )
+    resp = await client.get(f"/api/v1/gatherings/{gid}/reminders", headers=_auth(token))
     assert resp.status_code == 200
     titles = [r["title"] for r in resp.json()["reminders"]]
     assert titles == ["Sooner", "Later"]

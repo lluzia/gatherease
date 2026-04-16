@@ -23,7 +23,6 @@ Environment variables (or set in cdk.json context):
 import os
 
 import aws_cdk as cdk
-
 from stacks.cognito_stack import GatherEaseCognitoStack
 from stacks.rds_stack import GatherEaseRDSStack
 from stacks.s3_stack import GatherEaseS3Stack
@@ -35,7 +34,9 @@ env = cdk.Environment(
     region=os.environ.get("CDK_DEFAULT_REGION", "eu-west-1"),
 )
 
-app_env = app.node.try_get_context("app_env") or os.environ.get("APP_ENV", "development")
+app_env = app.node.try_get_context("app_env") or os.environ.get(
+    "APP_ENV", "development"
+)
 
 # ── Cognito ───────────────────────────────────────────────────────────────────
 cognito_stack = GatherEaseCognitoStack(

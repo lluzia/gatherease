@@ -33,8 +33,12 @@ PASSWORD = "SecurePass1!"
 
 async def _register_and_login(client: AsyncClient, email: str) -> str:
     """Register a user and return a valid access token."""
-    await client.post("/api/v1/auth/register", json={"email": email, "password": PASSWORD})
-    resp = await client.post("/api/v1/auth/login", json={"email": email, "password": PASSWORD})
+    await client.post(
+        "/api/v1/auth/register", json={"email": email, "password": PASSWORD}
+    )
+    resp = await client.post(
+        "/api/v1/auth/login", json={"email": email, "password": PASSWORD}
+    )
     assert resp.status_code == 200, resp.text
     return resp.json()["access_token"]
 
@@ -50,7 +54,9 @@ async def _create_gathering(client: AsyncClient, token: str) -> str:
     return resp.json()["id"]
 
 
-def _expired_token(secret: str = "test-secret-key-not-for-production") -> str:
+def _expired_token(
+    secret: str = "test-secret-key-not-for-production",  # noqa: S107
+) -> str:  # noqa: S107
     """Build a structurally valid JWT that is already expired."""
     now = datetime.now(UTC)
     payload = {
@@ -174,9 +180,7 @@ async def test_ws_sends_initial_state_when_budget_exists(
 
 
 @pytest.mark.asyncio
-async def test_ws_receives_broadcast_on_entry_added(
-    app, client: AsyncClient
-) -> None:
+async def test_ws_receives_broadcast_on_entry_added(app, client: AsyncClient) -> None:
     """
     When a REST caller POSTs a budget entry, the WS client connected to that
     gathering should receive the updated BudgetResponse as a broadcast.
@@ -213,9 +217,7 @@ async def test_ws_receives_broadcast_on_entry_added(
 
 
 @pytest.mark.asyncio
-async def test_ws_broadcast_on_entry_deleted(
-    app, client: AsyncClient
-) -> None:
+async def test_ws_broadcast_on_entry_deleted(app, client: AsyncClient) -> None:
     """Deleting an entry via REST also broadcasts the updated state to WS clients."""
     token = await _register_and_login(client, "wsok4@test.com")
     gid = await _create_gathering(client, token)
@@ -267,8 +269,10 @@ async def test_ws_multiple_clients_all_receive_broadcast(
     )
 
     sync_client = TestClient(app)
-    with sync_client.websocket_connect(_ws_url(gid, token)) as ws1, \
-         sync_client.websocket_connect(_ws_url(gid, token)) as ws2:
+    with (
+        sync_client.websocket_connect(_ws_url(gid, token)) as ws1,
+        sync_client.websocket_connect(_ws_url(gid, token)) as ws2,
+    ):
         # Both clients receive the initial state push
         ws1.receive_text()
         ws2.receive_text()

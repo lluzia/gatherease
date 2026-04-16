@@ -31,5 +31,5 @@ class DeviceTokenRequest(BaseModel):
         default=None,
         max_length=512,
         description="FCM device token from Flutter firebase_messaging package. "
-                    "Pass null to clear the token (e.g. on logout).",
+        "Pass null to clear the token (e.g. on logout).",
     )

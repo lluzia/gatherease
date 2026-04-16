@@ -47,6 +47,7 @@ dev:
 # ── Code quality ──────────────────────────────────────────────────────────────
 lint:
 	ruff check app/ tests/
+	ruff check . --fix && ruff format .
 
 format:
 	black app/ tests/

@@ -10,8 +10,10 @@ In production with Cognito, this column stays NULL.
 """
 
 from __future__ import annotations
-from alembic import op
+
 import sqlalchemy as sa
+
+from alembic import op
 
 revision: str = "0002_add_hashed_password"
 down_revision: str = "0001_initial_schema"
