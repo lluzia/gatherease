@@ -16,7 +16,7 @@ from app.api.v1.budget.schemas import (
     SetBudgetRequest,
     entry_to_dict,
 )
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import ForbiddenError, GatheringNotFoundError, NotFoundError
 from app.db.enums import BudgetEntryType
 from app.models.budget import Budget
 from app.models.budget_entry import BudgetEntry
@@ -36,7 +36,7 @@ class BudgetService:
         )
         gathering = result.scalar_one_or_none()
         if gathering is None:
-            raise NotFoundError("Gathering not found.")
+            raise GatheringNotFoundError()
         return gathering
 
     def _assert_host(self, gathering: Gathering, user: User) -> None:

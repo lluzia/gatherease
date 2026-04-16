@@ -17,7 +17,7 @@ from app.api.v1.gatherings.schemas import (
     RSVPResponse,
     UpdateGatheringRequest,
 )
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import ForbiddenError, GatheringLimitError, GatheringNotFoundError, NotFoundError
 from app.db.enums import RSVPStatus
 from app.models.gathering import Gathering
 from app.models.guest_rsvp import GuestRSVP
@@ -38,7 +38,7 @@ class GatheringService:
         )
         gathering = result.scalar_one_or_none()
         if gathering is None:
-            raise NotFoundError("Gathering not found.")
+            raise GatheringNotFoundError()
         return gathering
 
     def _assert_host(self, gathering: Gathering, user: User) -> None:
@@ -47,7 +47,33 @@ class GatheringService:
 
     # ── CRUD ─────────────────────────────────────────────────────────────────
 
+    FREE_GATHERING_LIMIT = 3
+
+    async def _assert_free_tier_limit(self, host: User) -> None:
+        """Raise GatheringLimitError if a free-tier user already has 3 active gatherings.
+
+        Premium users are unlimited. Active = not archived.
+        Deleted gatherings do not count (they are gone from the DB).
+        Archived gatherings do not count — archiving is the way to "close" an
+        event and free up a slot without losing the data.
+        """
+        if host.is_premium:
+            return
+
+        from sqlalchemy import func
+
+        result = await self._db.execute(
+            select(func.count()).select_from(Gathering).where(
+                Gathering.host_id == host.id,
+                Gathering.is_archived != True,  # noqa: E712
+            )
+        )
+        active_count = result.scalar_one()
+        if active_count >= self.FREE_GATHERING_LIMIT:
+            raise GatheringLimitError()
+
     async def create(self, payload: CreateGatheringRequest, host: User) -> Gathering:
+        await self._assert_free_tier_limit(host)
         gathering = Gathering(
             host_id=host.id,
             name=payload.name,

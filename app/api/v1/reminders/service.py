@@ -32,7 +32,7 @@ class ReminderService:
         )
         gathering = result.scalar_one_or_none()
         if gathering is None:
-            raise NotFoundError("Gathering not found.")
+            raise GatheringNotFoundError()
         return gathering
 
     def _assert_host(self, gathering: Gathering, user: User) -> None:

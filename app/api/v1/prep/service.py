@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.prep.schemas import AddPrepTaskRequest, UpdatePrepTaskRequest
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import ForbiddenError, GatheringNotFoundError, NotFoundError
 from app.models.gathering import Gathering
 from app.models.prep_task import PrepTask
 from app.models.user import User
@@ -27,7 +27,7 @@ class PrepService:
         )
         gathering = result.scalar_one_or_none()
         if gathering is None:
-            raise NotFoundError("Gathering not found.")
+            raise GatheringNotFoundError()
         return gathering
 
     def _assert_host(self, gathering: Gathering, user: User) -> None:

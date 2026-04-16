@@ -58,6 +58,7 @@ class UpdateGatheringRequest(BaseModel):
     show_location: bool | None = None
     show_shopping_list: bool | None = None
     show_prep_tasks: bool | None = None
+    is_archived: bool | None = None
 
 
 # ---------------------------------------------------------------------------

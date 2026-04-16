@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import structlog
 from fastapi import FastAPI, Request, status
+
+from app.core.i18n import translate
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -132,6 +134,16 @@ class EmailAlreadyRegisteredError(ConflictError):
 
 
 # ---------------------------------------------------------------------------
+# 402 / 403 Premium required
+# ---------------------------------------------------------------------------
+
+
+class GatheringLimitError(ForbiddenError):
+    code = "GATHERING_LIMIT_REACHED"
+    message = "Free plan limit reached. Upgrade to Premium for unlimited gatherings."
+
+
+# ---------------------------------------------------------------------------
 # 422 Unprocessable
 # ---------------------------------------------------------------------------
 
@@ -153,7 +165,11 @@ def _error_response(
     message: str,
     detail: object = None,
 ) -> JSONResponse:
-    body: dict = {"error": {"code": code, "message": message}}
+    # Translate the message into the request locale (resolved by middleware).
+    # Falls back to the English `message` arg if the code is not in the
+    # catalogue — this covers dynamic messages set at raise-site.
+    translated = translate(code) or message
+    body: dict = {"error": {"code": code, "message": translated}}
     if detail is not None:
         body["error"]["detail"] = detail
     return JSONResponse(status_code=status_code, content=body)
@@ -186,17 +202,32 @@ def register_exception_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         # Pydantic v2 puts the raw exception object in error["ctx"]["error"].
         # That is not JSON-serialisable, so we convert it to a string here.
+        def _make_serialisable(v: object) -> object:
+            """Recursively convert non-JSON-serialisable values to strings.
+
+            Pydantic v2 stores constraint values (e.g. Decimal('0'),
+            float('inf')) in the error ctx dict. JSONResponse will raise
+            TypeError on these, so we stringify anything that isn't a
+            basic JSON type.
+            """
+            if isinstance(v, dict):
+                return {k: _make_serialisable(val) for k, val in v.items()}
+            if isinstance(v, (list, tuple)):
+                return [_make_serialisable(i) for i in v]
+            if isinstance(v, (str, int, float, bool)) or v is None:
+                return v
+            return str(v)
+
         def _sanitise(errors: list) -> list:
             clean = []
             for e in errors:
                 e = dict(e)
-                if "ctx" in e and "error" in e["ctx"]:
-                    ctx = dict(e["ctx"])
-                    ctx["error"] = str(ctx["error"])
-                    e["ctx"] = ctx
                 # loc is a tuple — convert to list for JSON
                 if "loc" in e:
                     e["loc"] = list(e["loc"])
+                # ctx may contain Decimal, float('inf'), Exception objects, etc.
+                if "ctx" in e:
+                    e["ctx"] = _make_serialisable(e["ctx"])
                 clean.append(e)
             return clean
 

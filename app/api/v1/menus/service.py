@@ -15,7 +15,7 @@ from app.api.v1.menus.schemas import (
     UpdateDishRequest,
     dish_to_dict,
 )
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import ForbiddenError, GatheringNotFoundError, NotFoundError
 from app.models.dish import Dish
 from app.models.gathering import Gathering
 from app.models.menu import Menu
@@ -36,7 +36,7 @@ class MenuService:
         )
         gathering = result.scalar_one_or_none()
         if gathering is None:
-            raise NotFoundError("Gathering not found.")
+            raise GatheringNotFoundError()
         return gathering
 
     def _assert_host(self, gathering: Gathering, user: User) -> None:
